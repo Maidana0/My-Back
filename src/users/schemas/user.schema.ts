@@ -7,16 +7,16 @@ import mongoose, { Document } from 'mongoose'
     timestamps: true
 })
 export default class User extends Document {
-    @Prop({ require: true })
+    @Prop({ required: true })
     first_name: string
 
-    @Prop({ require: true })
+    @Prop({ required: true })
     last_name: string
 
     @Prop({ required: true, unique: true, index: true })
     email: string
 
-    @Prop({ require: true })
+    @Prop({default:''})
     password: string
 
 

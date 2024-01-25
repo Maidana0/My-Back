@@ -1,10 +1,25 @@
+import { IsEmail, IsNotEmpty, IsString } from "class-validator"
+
 export class LoginDto {
 
-    readonly first_name: String
+    @IsEmail()
+    @IsNotEmpty()
+    readonly email: string
+    
+    @IsString()
+    @IsNotEmpty()
+    readonly password: string
+}
 
-    readonly last_name: String
+export class OAuthLoginDto {
+    @IsString()
+    readonly first_name: string
+    
+    @IsString()
+    readonly last_name: string
 
-    readonly email: String
+    @IsEmail()
+    @IsNotEmpty()
+    readonly email: string
 
-    readonly password: String
 }

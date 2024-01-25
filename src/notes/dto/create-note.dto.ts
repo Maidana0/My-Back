@@ -1,9 +1,15 @@
+import { IsNotEmpty, IsString } from "class-validator"
 import User from "../../users/schemas/user.schema"
 import { Note } from "../schemas/notes.schema"
 
 export class NoteDto {
-    readonly text: string
-    readonly date: Object
+    @IsString()
+    @IsNotEmpty()
+    readonly text: String
+
+    @IsString()
+    @IsNotEmpty()
+    readonly date: String
 }
 
 export class CreateNotesDto {

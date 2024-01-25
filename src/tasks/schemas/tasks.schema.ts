@@ -1,5 +1,4 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
-import { time } from "../../common/utils"
 import mongoose from "mongoose";
 import User from "src/users/schemas/user.schema";
 
@@ -12,7 +11,7 @@ export class Task {
     @Prop({ default: false })
     sucess: Boolean;
 
-    @Prop({ type: String, default: time().full_date })
+    @Prop({ type: String, required: true})
     date: String
 
     @Prop({ default: "incomplete" })

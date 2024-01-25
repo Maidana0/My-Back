@@ -7,8 +7,10 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { GoogleStrategy } from './strategies/google.strategy';
 import { NotesSchema } from '../notes/schemas/notes.schema';
 import { TasksSchema } from '../tasks/schemas/tasks.schema';
+import { FaceboookStrategy } from './strategies/facebook.strategy';
 
 
 
@@ -44,10 +46,12 @@ import { TasksSchema } from '../tasks/schemas/tasks.schema';
     
   ],
   controllers: [UsersController],
-  providers: [UsersService, JwtStrategy],
+  providers: [UsersService, JwtStrategy, GoogleStrategy, FaceboookStrategy],
   exports: [
+    GoogleStrategy,
     JwtStrategy,
-    PassportModule
+    PassportModule,
+    FaceboookStrategy
   ]
 })
 export class UsersModule { }

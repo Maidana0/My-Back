@@ -1,6 +1,5 @@
 import mongoose from "mongoose"
 import User from "../../users/schemas/user.schema"
-import { time } from "../../common/utils"
 import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose"
 
 
@@ -10,8 +9,8 @@ export class Note {
     @Prop({ required: true })
     text: String
 
-    @Prop({ type: Object, default: time() })
-    date: Object
+    @Prop({ type: String, required: true })
+    date: String
     
 }
 export const NoteSchema = SchemaFactory.createForClass(Note)

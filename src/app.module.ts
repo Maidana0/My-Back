@@ -27,18 +27,20 @@ import { AllExceptionsFilter } from './common/exception.filter';
 
   ],
   controllers: [AppController],
-  providers: [AppService, 
+  providers: [AppService,
     {
-    provide: APP_FILTER,
-    useClass: AllExceptionsFilter,
-  }
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    }
   ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(NewMiddleware)
-      .forRoutes({ path: 'user/signUp', method: RequestMethod.POST })
+      .forRoutes({ path: 'user/register', method: RequestMethod.POST },
+        { path: 'user/auth/google/callback', method: RequestMethod.GET })
+
 
   }
 }

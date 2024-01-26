@@ -6,22 +6,26 @@ import { LoginDto } from './dto/login-user.dto';
 import { GoogleOauthGuard } from './guards/google-oauth.guard';
 import { Response } from 'express';
 import { FacebookOauthGuard } from './guards/facebook-oauth.guard';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('user')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
-  #cookieGenerate(res: Response, token: { token: string }) {
+  #cookieGenerate(req, res: Response, token: { token: string }) {
     res.cookie('token', token.token, {
       httpOnly: true,
       maxAge: 1296000000,
       sameSite: true,
       secure: false,
     })
+    req.session.user = req.user;
+    req.session.token = token.token
   }
   async #logOAuth(req, res: Response) {
     const token = await this.usersService.loginOAuth(req.user)
-    this.#cookieGenerate(res, token)
+    this.#cookieGenerate(req, res, token)
+
     res.json(token).status(HttpStatus.OK)
   }
 
@@ -32,10 +36,11 @@ export class UsersController {
 
   @Get('/login')
   async login(
+    @Req() req,
     @Body() loginDto: LoginDto,
     @Res() res: Response) {
     const token = await this.usersService.login(loginDto)
-    this.#cookieGenerate(res, token)
+    this.#cookieGenerate(req, res, token)
     res.json(token).status(HttpStatus.OK)
   }
 
@@ -65,12 +70,24 @@ export class UsersController {
 
 
   @Get('/logout')
-  async logout(@Res() res){
-    res.send("cerrar sesion en proceso xd")
+  async logout(@Req() req, @Res() res: Response) {
+
+    req.session.destroy((error) => error ? res.json({ error })
+      : res.clearCookie('token').status(HttpStatus.OK).redirect('/'))
+    // res.clearCookie('token')
+    // res.redirect("/")
+
   }
 
-
-
+  @Get('/current')
+  @UseGuards(JwtAuthGuard)
+  current(@Req() req, @Res() res: Response) {
+    res.json({
+      session: req.session || false,
+      user: req.user || false,
+      cookie: req.cookie || req.cookies || false
+    })
+  }
 
 
 }

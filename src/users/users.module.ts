@@ -11,12 +11,13 @@ import { GoogleStrategy } from './strategies/google.strategy';
 import { NotesSchema } from '../notes/schemas/notes.schema';
 import { TasksSchema } from '../tasks/schemas/tasks.schema';
 import { FaceboookStrategy } from './strategies/facebook.strategy';
+import { SessionSerializer } from './session/session.serialiser';
 
 
 
 @Module({
   imports: [
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    PassportModule.register({ session: true, defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
@@ -46,7 +47,7 @@ import { FaceboookStrategy } from './strategies/facebook.strategy';
     
   ],
   controllers: [UsersController],
-  providers: [UsersService, JwtStrategy, GoogleStrategy, FaceboookStrategy],
+  providers: [UsersService, JwtStrategy, GoogleStrategy, FaceboookStrategy, SessionSerializer],
   exports: [
     GoogleStrategy,
     JwtStrategy,

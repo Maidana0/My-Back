@@ -14,9 +14,14 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     ) {
         const extractJwtFromCookie = (req) => {
             let token = null;
-            if (req && req.cookies) {
+            // si existe una session con token retornara ese valor
+            if (req && req.session.token) {
+                token = req.session.token
+            } else if ((req && req.cookies)) {
                 token = req.cookies['token'];
             }
+            // sino retornara el valor del token guardado en la cookie "token"
+            // O el otorgado en el Header Auth como Bearer ...Token
             return ExtractJwt.fromAuthHeaderAsBearerToken()(req) || token
         };
 

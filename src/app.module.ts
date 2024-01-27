@@ -20,11 +20,6 @@ import { AllExceptionsFilter } from './common/exception.filter';
     UsersModule,
     TasksModule,
     NotesModule,
-
-
-
-
-
   ],
   controllers: [AppController],
   providers: [AppService,

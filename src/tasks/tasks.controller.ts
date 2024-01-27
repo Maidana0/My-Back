@@ -16,7 +16,7 @@ export class TasksController {
     @Req() req,
     @Query('task') task: string
   ): Promise<Tasks> {
-    return this.tasksService.getTasks(req.user.tasks, task)
+    return this.tasksService.getTasks(req.user._tasks, task)
   }
 
   @Post()
@@ -24,7 +24,7 @@ export class TasksController {
     @Req() req,
     @Body() taskDto: TaskDto
   ): Promise<Tasks> {
-    return this.tasksService.createTask(req.user.tasks, taskDto)
+    return this.tasksService.createTask(req.user._tasks, taskDto)
   }
 
   @Put(':taskDate')
@@ -33,7 +33,7 @@ export class TasksController {
     @Body() newTask: UpdateTaskDto,
     @Param('taskDate') taskDate: string
   ): Promise<Tasks> {
-    return this.tasksService.updateTask(req.user.tasks, taskDate, newTask)
+    return this.tasksService.updateTask(req.user._tasks, taskDate, newTask)
   }
 
   @Delete('taskDate')
@@ -41,7 +41,7 @@ export class TasksController {
     @Req() req,
     @Param('taskDate') taskDate: string
   ): Promise<Tasks> {
-    return this.tasksService.removeTask(req.user.tasks, taskDate)
+    return this.tasksService.removeTask(req.user._tasks, taskDate)
   }
 
 

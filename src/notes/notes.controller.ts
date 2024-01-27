@@ -19,7 +19,7 @@ export class NotesController {
     @Query('id') id: string
 
   ): Promise<Notes> {
-    return this.notesService.getNotes(req.user.notes, text, id)
+    return this.notesService.getNotes(req.user._notes, text, id)
   }
 
   @Post()
@@ -27,7 +27,7 @@ export class NotesController {
     @Req() req,
     @Body() noteDto: NoteDto
   ): Promise<Notes> {
-    return this.notesService.createNote(req.user.notes, noteDto)
+    return this.notesService.createNote(req.user._notes, noteDto)
   }
 
 
@@ -37,7 +37,7 @@ export class NotesController {
     @Body() newNote: UpdateNoteDto,
     @Param('noteDate') noteDate: string
   ): Promise<Notes> {
-    return this.notesService.updateNote(req.user.notes, noteDate, newNote)
+    return this.notesService.updateNote(req.user._notes, noteDate, newNote)
   }
 
   @Delete(':noteDate')
@@ -45,7 +45,7 @@ export class NotesController {
     @Req() req,
     @Param('noteDate') noteDate: string
   ): Promise<Notes> {
-    return this.notesService.removeNote(req.user.notes, noteDate)
+    return this.notesService.removeNote(req.user._notes, noteDate)
   }
 
 

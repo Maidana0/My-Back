@@ -1,11 +1,12 @@
 import { IsEmail, IsNotEmpty, IsString } from "class-validator"
+import mongoose from "mongoose"
 
 export class LoginDto {
 
     @IsEmail()
     @IsNotEmpty()
     readonly email: string
-    
+
     @IsString()
     @IsNotEmpty()
     readonly password: string
@@ -13,13 +14,16 @@ export class LoginDto {
 
 export class OAuthLoginDto {
     @IsString()
-    readonly first_name: string
-    
+    readonly _first_name: string
+
     @IsString()
-    readonly last_name: string
+    readonly _last_name: string
 
     @IsEmail()
     @IsNotEmpty()
-    readonly email: string
+    readonly _email: string
 
+    readonly _id: mongoose.Schema.Types.ObjectId
+    readonly _notes: mongoose.Schema.Types.ObjectId
+    readonly _tasks: mongoose.Schema.Types.ObjectId
 }

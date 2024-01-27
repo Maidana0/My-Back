@@ -19,7 +19,6 @@ export class UsersController {
       sameSite: true,
       secure: false,
     })
-    req.session.user = req.user;
     req.session.token = token.token
   }
   async #logOAuth(req, res: Response) {
@@ -70,13 +69,11 @@ export class UsersController {
 
 
   @Get('/logout')
+  @UseGuards(JwtAuthGuard)
   async logout(@Req() req, @Res() res: Response) {
 
     req.session.destroy((error) => error ? res.json({ error })
-      : res.clearCookie('token').status(HttpStatus.OK).redirect('/'))
-    // res.clearCookie('token')
-    // res.redirect("/")
-
+      : res.clearCookie('token').status(HttpStatus.OK).redirect('http://localhost:4000/api'))
   }
 
   @Get('/current')

@@ -1,6 +1,4 @@
 import { IsEmail, IsNotEmpty, IsString } from "class-validator"
-import Notes from "src/notes/schemas/notes.schema"
-import Tasks from "src/tasks/schemas/tasks.schema"
 
 export class CreateUserDto {
     @IsNotEmpty()
@@ -19,9 +17,9 @@ export class CreateUserDto {
     @IsString()
     readonly password: string
 
-    readonly notes: Notes
+    // readonly notes: Tasks
 
-    readonly tasks: Tasks
+    // readonly tasks: mongoose.Schema.Types.ObjectId
 
     // constructor(user) {
     //     this.first_name = user.first_name ? user.first_name : user.username.split(' ')[0],

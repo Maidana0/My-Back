@@ -48,7 +48,7 @@ export class UsersService {
 
 
 
-  // NORMAL REGISTER JWT
+  // REGISTER
   async register(createUserDto: CreateUserDto): Promise<{ message: string, sucess: boolean }> {
     const { first_name, last_name, email, password } = createUserDto
     if (!first_name || !last_name || !email || !password) {
@@ -61,12 +61,12 @@ export class UsersService {
     const hashedPassword = await bcrypt.hash(password, 10)
     await this.#createUser({
       first_name, last_name, email,
-      password: hashedPassword,
+      password: hashedPassword
     })
 
     return { message: 'Usuario creado correctamente. Ya puede iniciar sesión', sucess: true }
   }
-
+  // LOGIN JWT
   async login(loginDto: LoginDto): Promise<{ token: string }> {
     const { email, password: pass } = loginDto
 
@@ -80,11 +80,10 @@ export class UsersService {
   }
 // LOGIN OAUTH20 PARA GOOGLE Y FACEBOOK
   async loginOAuth(userDto: OAuthLoginDto): Promise<{ token: string }> {
-    if (!userDto.email) { throw new UnauthorizedException('Los datos brindados no son validos') }
+    if (!userDto._email) { throw new UnauthorizedException('Los datos brindados no son validos') }
 
-    const existUser = await this.#findUser(userDto.email)
-    if (existUser) {
-      return await this.#singIn({ id: existUser._id }, { privateKey: process.env.JWT_SECRET })
+    if (userDto._id) {
+      return await this.#singIn({ id: userDto._id }, { privateKey: process.env.JWT_SECRET })
     }
 
     const newUser = await this.#createUser(userDto)

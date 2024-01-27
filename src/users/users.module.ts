@@ -11,7 +11,8 @@ import { GoogleStrategy } from './strategies/google.strategy';
 import { NotesSchema } from '../notes/schemas/notes.schema';
 import { TasksSchema } from '../tasks/schemas/tasks.schema';
 import { FaceboookStrategy } from './strategies/facebook.strategy';
-import { SessionSerializer } from './session/session.serialiser';
+import { Session } from './session/session.serialiser';
+import { ValidateService } from './strategies/validateService';
 
 
 
@@ -30,29 +31,24 @@ import { SessionSerializer } from './session/session.serialiser';
       }
     }),
 
-    MongooseModule.forFeature([{
-      name: 'Users',
-      schema: UserSchema
-    }]),
-
-    MongooseModule.forFeature([{
-      name: 'Notes',
-      schema: NotesSchema
-    }]),
-
-    MongooseModule.forFeature([{
-      name: 'Tasks',
-      schema: TasksSchema
-    }])
-    
+    MongooseModule.forFeature([
+      { name: 'Users', schema: UserSchema },
+      { name: 'Notes', schema: NotesSchema },
+      { name: 'Tasks', schema: TasksSchema }
+    ])
   ],
   controllers: [UsersController],
-  providers: [UsersService, JwtStrategy, GoogleStrategy, FaceboookStrategy, SessionSerializer],
-  exports: [
+  providers: [
+    UsersService,
+    JwtStrategy, 
     GoogleStrategy,
+    FaceboookStrategy,
+    Session,
+    ValidateService
+  ],
+  exports: [
     JwtStrategy,
     PassportModule,
-    FaceboookStrategy
   ]
 })
 export class UsersModule { }

@@ -1,7 +1,6 @@
-import { Controller, Get, Post, Body, Req, Res, Param, Delete, UseGuards, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Req, Res, UseGuards, HttpStatus } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginDto } from './dto/login-user.dto';
 import { GoogleOauthGuard } from './guards/google-oauth.guard';
 import { Response } from 'express';
@@ -24,16 +23,15 @@ export class UsersController {
   async #logOAuth(req, res: Response) {
     const token = await this.usersService.loginOAuth(req.user)
     this.#cookieGenerate(req, res, token)
-
-    res.json(token).status(HttpStatus.OK)
+    res.redirect(`http://localhost:3000/api/account/oauth?accessToken=${token.token}`)
   }
 
   @Post('/register')
-  signUp(@Body() createUserDto: CreateUserDto): Promise<{ message: string, sucess: boolean }> {
+  signUp(@Body() createUserDto: CreateUserDto): Promise<{ message: string, success: boolean }> {
     return this.usersService.register(createUserDto);
   }
 
-  @Get('/login')
+  @Post('/login')
   async login(
     @Req() req,
     @Body() loginDto: LoginDto,
@@ -57,7 +55,8 @@ export class UsersController {
 
   @Get('/facebook')
   @UseGuards(FacebookOauthGuard)
-  async facebookLogin() { }
+  async facebookLogin() {
+  }
 
   @Get('/auth/facebook/callback')
   @UseGuards(FacebookOauthGuard)
@@ -72,8 +71,10 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   async logout(@Req() req, @Res() res: Response) {
 
-    req.session.destroy((error) => error ? res.json({ error })
-      : res.clearCookie('token').status(HttpStatus.OK).redirect('http://localhost:4000/api'))
+    req.session.destroy(
+      error => error ? res.json({ error })
+      : res.clearCookie('token').status(HttpStatus.OK).json({ message: "Se ha desconectado correctamente!", success: true })
+    )
   }
 
   @Get('/current')

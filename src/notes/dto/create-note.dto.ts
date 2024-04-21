@@ -6,10 +6,6 @@ export class NoteDto {
     @IsString()
     @IsNotEmpty()
     readonly text: String
-
-    @IsString()
-    @IsNotEmpty()
-    readonly date: String
 }
 
 export class CreateNotesDto {

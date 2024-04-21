@@ -11,7 +11,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
 import { NotesSchema } from '../notes/schemas/notes.schema';
 import { TasksSchema } from '../tasks/schemas/tasks.schema';
 import { FaceboookStrategy } from './strategies/facebook.strategy';
-import { Session } from './session/session.serialiser';
+import { Session } from './session/session.serializer';
 import { ValidateService } from './strategies/validateService';
 
 

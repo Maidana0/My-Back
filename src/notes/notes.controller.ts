@@ -4,6 +4,7 @@ import { NoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import Notes from './schemas/notes.schema';
 import { JwtAuthGuard } from 'src/users/guards/jwt-auth.guard';
+import { IResponseMessage } from 'src/common/utils';
 
 @Controller('notes')
 // @UseGuards(AuthGuard())
@@ -15,37 +16,36 @@ export class NotesController {
   @Get()
   getNotes(
     @Req() req,
-    @Query('text') text: string,
-    @Query('id') id: string
-
+    @Query('text') text?: string,
+    @Query('sort') sort?: 1|-1,
   ): Promise<Notes> {
-    return this.notesService.getNotes(req.user._notes, text, id)
+    return this.notesService.getNotes(req.user._notes, text, sort)
   }
 
   @Post()
   createNote(
     @Req() req,
     @Body() noteDto: NoteDto
-  ): Promise<Notes> {
+  ): Promise<IResponseMessage> {
     return this.notesService.createNote(req.user._notes, noteDto)
   }
 
 
-  @Put(':noteDate')
+  @Put(':id')
   updateNote(
     @Req() req,
     @Body() newNote: UpdateNoteDto,
-    @Param('noteDate') noteDate: string
-  ): Promise<Notes> {
-    return this.notesService.updateNote(req.user._notes, noteDate, newNote)
+    @Param('id') id: string
+  ): Promise<IResponseMessage> {
+    return this.notesService.updateNote(req.user._notes, id, newNote)
   }
 
-  @Delete(':noteDate')
+  @Delete(':id')
   RemoveNote(
     @Req() req,
-    @Param('noteDate') noteDate: string
-  ): Promise<Notes> {
-    return this.notesService.removeNote(req.user._notes, noteDate)
+    @Param('id') id: string
+  ): Promise<IResponseMessage> {
+    return this.notesService.removeNote(req.user._notes, id)
   }
 
 

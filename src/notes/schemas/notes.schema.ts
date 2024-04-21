@@ -3,16 +3,12 @@ import User from "../../users/schemas/user.schema"
 import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose"
 
 
-@Schema()
+@Schema({timestamps: true})
 export class Note {
-
     @Prop({ required: true })
     text: String
-
-    @Prop({ type: String, required: true })
-    date: String
-    
 }
+
 export const NoteSchema = SchemaFactory.createForClass(Note)
 
 

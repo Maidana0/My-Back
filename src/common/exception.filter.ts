@@ -23,7 +23,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
       else return { message: message || 'Internal Server Error' };
     }
 
-
+    // console.log(exception);
+    
     response
       .status(status)
       .json({

@@ -15,9 +15,11 @@ export class ValidateService {
 
     async validateUserOAuth(profile: GoogleProfile | FacebookProfile): Promise<any> {
         const { name, emails } = profile
+
         const userDB = await this.userModel.find({ email: emails[0].value })
         let _user: Object;
-        if (userDB) {
+
+        if (userDB[0]?._id) {
             _user = {
                 _id: userDB[0]._id,
                 _email: userDB[0].email,
@@ -31,6 +33,7 @@ export class ValidateService {
                 _last_name: name.familyName
             }
         }
+
         return _user
     }
 

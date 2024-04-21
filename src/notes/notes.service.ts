@@ -4,8 +4,7 @@ import { UpdateNoteDto } from './dto/update-note.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import Notes from './schemas/notes.schema'
-//
-import { dateTime } from '../common/utils';
+import { responseMessage, IResponseMessage } from 'src/common/utils';
 // RUTAS PROTEGIDAS
 @Injectable()
 export class NotesService {
@@ -15,54 +14,69 @@ export class NotesService {
   async #userNotes(notesId: string) { return await this.notesModel.findById(notesId) }
 
   // OBTENER TODAS LAS NOTAS DE UN USUARIO
-  async getNotes(notesId: string, text: string, date: string) {
-    const notes = await this.notesModel.aggregate([
-      { $match: { _id: notesId } },
-      { $unwind: '$notes' },
-      { $match: { 'notes.text': { $regex: new RegExp(text, 'i') } } },
-      { $match: { 'notes.date': { $regex: new RegExp(date, 'i') } } },
+  async getNotes(notesId: string, text?: string, sort?: 1|-1) {
+    try {
 
-      { $group: { _id: '$_id', notes: { $push: '$notes' } } }
-    ])
-    return notes[0]?.notes || []
+      const aggregationStages: any[] = [{ $match: { _id: notesId } }, { $unwind: '$notes' },]
+      if (text) aggregationStages.push({ $match: { 'notes.text': { $regex: new RegExp(text, 'i') } } })
+      if (sort == 1 || sort == -1) aggregationStages.push({ $sort: { 'notes.updatedAt': Number(sort) } })
+      aggregationStages.push({ $group: { _id: '$_id', notes: { $push: '$notes' } } });  
+
+      const notes = await this.notesModel.aggregate(aggregationStages)
+
+      return notes[0]?.notes || []
+    } catch (error) {
+      return responseMessage(false, 'Ocurrio un error al obtener las notas. \n' + error.message)
+    }
   }
 
   // CREAR UNA NOTA PARA EL USUARIO
-  async createNote(notesId: string, noteDto: NoteDto): Promise<Notes> {
-    if (!noteDto.text || !notesId) throw new HttpException("No esta brindando los datos necesarios para crear una nota", HttpStatus.BAD_REQUEST)
-    const userNotes = await this.#userNotes(notesId)
-    userNotes.notes.push(noteDto)
-    // PARA PRODUCCION = 
-    // userNotes.notes.push({text: noteDto.text, date: dateTime()})
-    return await userNotes.save()
+  async createNote(notesId: string, noteDto: NoteDto): Promise<IResponseMessage> {
+    try {
+      const newNote = await this.notesModel.updateOne(
+        { _id: notesId },
+        { $push: { notes: noteDto } }
+      )
+      
+      return newNote.modifiedCount === 1
+        ? responseMessage(true, 'Nota creada correctamente!')
+        : responseMessage(false, 'Ocurrio un error al crear la nota.')
+    } catch (error) {
+      return responseMessage(false, 'Ocurrio un error al crear la nota. \n' + error.message)
+    }
   }
 
+  async updateNote(notesId: string, id: string, newNote: UpdateNoteDto): Promise<IResponseMessage> {
+    try {
+      const updateNote = await this.notesModel.updateOne(
+        { _id: notesId, "notes._id": id },
+        { $set: { "notes.$.text": newNote.text } }
+      )
 
-  async updateNote(notesId: string, noteDate: string, newNote: UpdateNoteDto): Promise<Notes> {
-    if (!newNote.text || !noteDate || !notesId) throw new HttpException('No esta brindando los datos necesarios para actualizar una nota', HttpStatus.BAD_REQUEST)
+      return updateNote.modifiedCount === 1
+        ? responseMessage(true, 'Nota actualizada correctamente!')
+        : responseMessage(false, 'Ocurrio un error al actualizar la nota. \n Verifique el id de la nota que desea actualizar.')
 
-    const userNotes = await this.#userNotes(notesId)
 
-    const indexNote = userNotes.notes.findIndex(note => note.date == noteDate)
-    if (indexNote < 0) throw new HttpException('Nota no encontrada. Revise su id', HttpStatus.NOT_FOUND)
 
-    userNotes.notes.splice(indexNote, 1, {
-      text: newNote.text,
-      date: newNote.date ? newNote.date : userNotes.notes[indexNote].date
-    })
-    return await userNotes.save()
-
+    } catch (error) {
+      return responseMessage(false, 'Ocurrio un error al actualizar la nota. \n' + error.message)
+    }
   }
 
-  async removeNote(notesId: string, noteDate: string): Promise<Notes> {
-    if (!noteDate || !notesId) throw new HttpException('No esta brindando los datos necesarios para borrar una nota', HttpStatus.BAD_REQUEST)
+  async removeNote(notesId: string, id: string): Promise<IResponseMessage> {
+    try {
+      const deleteNote = await this.notesModel.updateOne(
+        { _id: notesId, "notes._id": id },
+        { $pull: { notes: { _id: id } } }
+      )
 
-    const userNotes = await this.#userNotes(notesId)
-    const indexNote = userNotes.notes.findIndex(note => note.date == noteDate)
-    if (indexNote < 0) throw new HttpException('Nota no encontrada. Revise su id', HttpStatus.NOT_FOUND)
-
-    userNotes.notes.splice(indexNote, 1)
-    return await userNotes.save()
+      return deleteNote.modifiedCount === 1
+        ? responseMessage(true, "Nota borrada correctamente!")
+        : responseMessage(false, 'Ocurrio un error al borrar la nota.')
+    } catch (error) {
+      return responseMessage(false, 'Ocurrio un error al borrar la nota. \n' + error.message)
+    }
   }
 
 }

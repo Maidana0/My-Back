@@ -6,5 +6,4 @@ export class UpdateNoteDto extends PartialType(NoteDto) {
     @IsString()
     @IsNotEmpty()
     readonly text: string
-    // readonly date: string
 }

@@ -15,3 +15,6 @@ export function dateTime() {
     return `${year}-${month}-${day}T${localHours}:${minutes}:${seconds}.${milliseconds}Z|MATH-${Math.floor(Math.random() * 900000000) + 100000000}`
 }
 
+export interface IResponseMessage { message: string, success: boolean }
+
+export const responseMessage = (success: boolean, message: string): IResponseMessage => ({ success, message })

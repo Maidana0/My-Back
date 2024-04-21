@@ -1,6 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { Model } from 'mongoose';
@@ -11,7 +10,7 @@ import Notes from '../notes/schemas/notes.schema'
 
 
 import * as bcrypt from 'bcryptjs'
-import { LoginDto, OAuthLoginDto } from './dto/login-user.dto';
+import { LoginDto, OAuthLoginDto, OAuthRegisterDto } from './dto/login-user.dto';
 
 
 @Injectable()
@@ -28,7 +27,7 @@ export class UsersService {
   async #findUser(email: string): Promise<User | null> {
     return await this.userModel.findOne({ email })
   }
-  async #createUser(createUserDto: CreateUserDto | OAuthLoginDto): Promise<User> {
+  async #createUser(createUserDto: CreateUserDto | OAuthRegisterDto): Promise<User> {
     try {
       const newUser = await this.userModel.create(createUserDto)
       const notes = await this.notesModel.create({ user: newUser._id })
@@ -49,14 +48,14 @@ export class UsersService {
 
 
   // REGISTER
-  async register(createUserDto: CreateUserDto): Promise<{ message: string, sucess: boolean }> {
+  async register(createUserDto: CreateUserDto): Promise<{ message: string, success: boolean }> {
     const { first_name, last_name, email, password } = createUserDto
     if (!first_name || !last_name || !email || !password) {
       throw new UnauthorizedException('No esta brindando los datos necesarios para crear un usuario')
     }
 
     const user = await this.#findUser(email)
-    if (user) return { message: 'El correo ingresado ya se encuentra registado', sucess: false }
+    if (user) return { message: 'El correo ingresado ya se encuentra registado', success: false }
 
     const hashedPassword = await bcrypt.hash(password, 10)
     await this.#createUser({
@@ -64,7 +63,7 @@ export class UsersService {
       password: hashedPassword
     })
 
-    return { message: 'Usuario creado correctamente. Ya puede iniciar sesión', sucess: true }
+    return { message: 'Usuario creado correctamente. Ya puede iniciar sesión', success: true }
   }
   // LOGIN JWT
   async login(loginDto: LoginDto): Promise<{ token: string }> {
@@ -78,7 +77,7 @@ export class UsersService {
 
     return await this.#singIn({ id: user._id }, { privateKey: process.env.JWT_SECRET })
   }
-// LOGIN OAUTH20 PARA GOOGLE Y FACEBOOK
+  // LOGIN OAUTH20 PARA GOOGLE Y FACEBOOK
   async loginOAuth(userDto: OAuthLoginDto): Promise<{ token: string }> {
     if (!userDto._email) { throw new UnauthorizedException('Los datos brindados no son validos') }
 
@@ -86,7 +85,12 @@ export class UsersService {
       return await this.#singIn({ id: userDto._id }, { privateKey: process.env.JWT_SECRET })
     }
 
-    const newUser = await this.#createUser(userDto)
+    const newUserData = {
+      first_name: userDto._first_name,
+      last_name: userDto._last_name,
+      email: userDto._email
+    }
+    const newUser = await this.#createUser(newUserData)
     return await this.#singIn({ id: newUser._id }, { privateKey: process.env.JWT_SECRET })
   }
 

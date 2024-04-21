@@ -1,35 +1,30 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
 import mongoose from "mongoose";
 import User from "src/users/schemas/user.schema";
+import { TaskStatus } from "../entities/task.entity";
 
 
-@Schema()
+@Schema({ timestamps: true })
 export class Task {
-    @Prop({ required: true })
-    task: String;
+    @Prop({type: String })
+    task: string;
 
-    @Prop({ default: false })
-    sucess: Boolean;
-
-    @Prop({ type: String, required: true})
-    date: String
-
-    @Prop({ default: "incomplete" })
-    completeAt: String
+    @Prop({ type: String,  enum: Object.values(TaskStatus), default: TaskStatus.PENDING })
+    status: TaskStatus;
 }
 
-export const TaskSchema = SchemaFactory.createForClass(Task)
+// export const TaskSchema = SchemaFactory.createForClass(Task)
 
 
 
 
 @Schema()
 export default class Tasks {
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Users', require: true })
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Users", require: true })
     user: User
 
 
-    @Prop({ type: [TaskSchema], default: [] })
+    @Prop({ type: [Task], default: [] })
     tasks: Array<Task>
 }
 

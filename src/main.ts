@@ -9,7 +9,7 @@ import * as MongoDBStore from 'connect-mongodb-session'
 async function bootstrap() {
   const MongoDbStore = MongoDBStore(session)
   const store = new MongoDbStore({
-    uri: process.env.DB_uri,
+    uri: process.env.DB_URI,
     collection: 'sessions'
   })
 

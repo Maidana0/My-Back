@@ -1,8 +1,7 @@
 import { Controller, Get, Post, Body, Param, Delete, Put, UseGuards, Req, Query } from '@nestjs/common';
 import { TasksService } from './tasks.service';
-import { CreateTasksDto, TaskDto } from './dto/create-task.dto';
+import { TaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import Tasks from './schemas/tasks.schema';
 import { JwtAuthGuard } from 'src/users/guards/jwt-auth.guard';
 import { TaskStatus } from './entities/task.entity';
 import { IResponseMessage } from 'src/common/utils';
@@ -17,9 +16,15 @@ export class TasksController {
   getTasks(
     @Req() req,
     @Query('task') task: string,
-    @Query('status') status: TaskStatus
+    @Query('status') status: TaskStatus,
+    @Query('category') category: string,
   ) {
-    return this.tasksService.getTasks(req.user._tasks, task, status)
+    return this.tasksService.getTasks(req.user._tasks, { task, status, category })
+  }
+
+  @Get("categories")
+  getCategories(@Req() req) {
+    return this.tasksService.getCategories(req.user._tasks)
   }
 
   @Post()
@@ -49,5 +54,4 @@ export class TasksController {
   }
 
 
-  // -----------------------------------------------------------
 }

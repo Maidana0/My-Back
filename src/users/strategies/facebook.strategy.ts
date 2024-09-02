@@ -1,22 +1,20 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
+import { Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
-import { Model } from "mongoose";
 import { Profile, Strategy } from "passport-facebook"
-import User from "../schemas/user.schema";
 import { ValidateService } from "./validateService";
 
 @Injectable()
 export class FaceboookStrategy extends PassportStrategy(Strategy, 'facebook') {
     constructor(
-        // @InjectModel('Users')
-        // private userModel: Model<User>
         private readonly validateService: ValidateService
     ) {
         super({
             clientID: process.env.FACEBOOK_CLIENT_ID,
             clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-            callbackURL: process.env.FACEBOOK_CALLBACK_URL,
+            callbackURL: (
+                (process.env.MODE === 'prod' ? process.env.PROD_API_URL : process.env.DEV_API_URL)
+                + "/api/" + process.env.FACEBOOK_CALLBACK_URL
+            ),
             scope: 'email',
             profileFields: ['email', 'name']
         })

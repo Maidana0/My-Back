@@ -23,7 +23,10 @@ export class UsersController {
   async #logOAuth(req, res: Response) {
     const token = await this.usersService.loginOAuth(req.user)
     this.#cookieGenerate(req, res, token)
-    res.redirect(`http://localhost:3000/api/account/oauth?accessToken=${token.token}`)
+    res.redirect(`${process.env.MODE === "prod"
+        ? process.env.PROD_CLIENT_URL
+        : process.env.DEV_CLIENT_URL
+      }/api/account/oauth?accessToken=${token.token}`)
   }
 
   @Post('/register')
@@ -73,7 +76,7 @@ export class UsersController {
 
     req.session.destroy(
       error => error ? res.json({ error })
-      : res.clearCookie('token').status(HttpStatus.OK).json({ message: "Se ha desconectado correctamente!", success: true })
+        : res.clearCookie('token').status(HttpStatus.OK).json({ message: "Se ha desconectado correctamente!", success: true })
     )
   }
 

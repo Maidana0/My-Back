@@ -34,7 +34,9 @@ export class AppModule implements NestModule {
     consumer
       .apply(NewMiddleware)
       .forRoutes({ path: 'user/register', method: RequestMethod.POST },
-        { path: 'user/auth/google/callback', method: RequestMethod.GET })
+        { path: 'user/auth/google/callback', method: RequestMethod.GET },
+        { path: 'user/auth/facebook/callback', method: RequestMethod.GET },
+      )
 
 
   }

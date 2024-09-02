@@ -1,10 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateTasksDto, TaskDto } from './dto/create-task.dto';
+import { TaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import Tasks from './schemas/tasks.schema';
-import { TaskStatus } from './entities/task.entity';
 import { IResponseMessage, responseMessage } from 'src/common/utils';
 
 
@@ -14,20 +13,39 @@ export class TasksService {
   async #userTasks(userId: string) { return await this.tasksModel.findById(userId) }
 
 
-  async getTasks(tasksId: string, task: string, status: TaskStatus) {
+  async getTasks(tasksId: string, { task, status, category }: TaskDto): Promise<TaskDto[] | IResponseMessage> {
     try {
 
       const tasks = await this.tasksModel.aggregate([
         { $match: { _id: tasksId } },
         { $unwind: '$tasks' },
         ...status ? [{ $match: { 'tasks.status': status } }] : [],
+        ...category ? [{ $match: { 'tasks.category': category } }] : [],
         ...task ? [{ $match: { 'tasks.task': { $regex: new RegExp(task, 'i') } } }] : [],
         { $group: { _id: '$_id', tasks: { $push: '$tasks' } } },
       ])
       return tasks[0]?.tasks || []
     } catch (error) {
-      return responseMessage(false, 'Ocurrio un error al obtener las tareas. \n' + error.message)
+      return responseMessage(
+        false, 'Ocurrio un error al obtener las tareas. \n' + error.message, HttpStatus.INTERNAL_SERVER_ERROR
+      )
+    }
+  }
 
+  async getCategories(tasksId: string): Promise<String[] | IResponseMessage> {
+    try {
+      const categories = await this.tasksModel.aggregate([
+        { $match: { _id: tasksId } },
+        { $unwind: '$tasks' },
+        { $group: { _id: '$_id', categories: { $addToSet: '$tasks.category' } } },
+        { $project: { _id: 0, categories: 1 } }
+      ])
+      return categories[0]?.categories || []
+    }
+    catch (error) {
+      return responseMessage(
+        false, 'Ocurrio un error al obtener las categorias. \n' + error.message, HttpStatus.INTERNAL_SERVER_ERROR
+      )
     }
   }
 
@@ -42,7 +60,9 @@ export class TasksService {
         ? responseMessage(true, 'Tarea creada correctamente!')
         : responseMessage(false, 'Ocurrio un error al crear la tarea.')
     } catch (error) {
-      return responseMessage(false, 'Ocurrio un error al crear la tarea. \n' + error.message)
+      return responseMessage(
+        false, 'Ocurrio un error interno al crear la tarea. \n' + error.message, HttpStatus.INTERNAL_SERVER_ERROR
+      )
     }
   }
 
@@ -50,17 +70,25 @@ export class TasksService {
 
   async updateTask(tasksId: string, id: string, newTask: UpdateTaskDto): Promise<IResponseMessage> {
     try {
-      const { task, status } = newTask
+      const { task, status, category } = newTask
       const updateTask = await this.tasksModel.updateOne(
         { _id: tasksId, "tasks._id": id },
-        { $set: { "tasks.$.task": task, "tasks.$.status": status } }
+        {
+          $set: {
+            "tasks.$.task": task,
+            "tasks.$.status": status,
+            "tasks.$.category": category
+          }
+        }
       )
 
       return updateTask.modifiedCount === 1
         ? responseMessage(true, 'Tarea actualizada correctamente!')
         : responseMessage(false, 'Ocurrio un error al actualizar la tarea. \n Verifique el id de la tarea que desea actualizar.')
     } catch (error) {
-      return responseMessage(false, 'Ocurrio un error al actualizar la tarea. \n' + error.message)
+      return responseMessage(
+        false, 'Ocurrio un error al actualizar la tarea. \n' + error.message, HttpStatus.INTERNAL_SERVER_ERROR
+      )
     }
 
   }
@@ -98,7 +126,9 @@ export class TasksService {
         ? responseMessage(true, "Tarea borrada correctamente!")
         : responseMessage(false, 'Ocurrio un error al borrar la tarea.')
     } catch (error) {
-      return responseMessage(false, 'Ocurrio un error al borrar la tarea. \n' + error.message)
+      return responseMessage(
+        false, 'Ocurrio un error al borrar la tarea. \n' + error.message, HttpStatus.INTERNAL_SERVER_ERROR
+      )
     }
   }
 

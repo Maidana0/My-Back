@@ -1,3 +1,5 @@
+import { HttpStatus } from "@nestjs/common";
+
 export const today = new Date().getDay() - 1;
 
 export function dateTime() {
@@ -15,6 +17,9 @@ export function dateTime() {
     return `${year}-${month}-${day}T${localHours}:${minutes}:${seconds}.${milliseconds}Z|MATH-${Math.floor(Math.random() * 900000000) + 100000000}`
 }
 
-export interface IResponseMessage { message: string, success: boolean }
+export interface IResponseMessage { message: string, success: boolean, httpStatus?: HttpStatus }
 
-export const responseMessage = (success: boolean, message: string): IResponseMessage => ({ success, message })
+export const responseMessage = (success: boolean, message: string, httpStatus?: HttpStatus)
+    : IResponseMessage => (
+    { success, message, httpStatus }
+)

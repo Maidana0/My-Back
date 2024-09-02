@@ -6,11 +6,14 @@ import { TaskStatus } from "../entities/task.entity";
 
 @Schema({ timestamps: true })
 export class Task {
-    @Prop({type: String })
+    @Prop({ type: String })
     task: string;
 
-    @Prop({ type: String,  enum: Object.values(TaskStatus), default: TaskStatus.PENDING })
+    @Prop({ type: String, enum: Object.values(TaskStatus), default: TaskStatus.PENDING })
     status: TaskStatus;
+
+    @Prop({ type: String, default: "otros" })
+    category: string
 }
 
 // export const TaskSchema = SchemaFactory.createForClass(Task)

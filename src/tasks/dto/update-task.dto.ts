@@ -6,5 +6,7 @@ export class UpdateTaskDto extends TaskDto {
     @IsOptional()
     readonly task: string
 
-
+    @IsString()
+    @IsOptional()
+    readonly category: string;
 }

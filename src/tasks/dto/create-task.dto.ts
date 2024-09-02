@@ -1,6 +1,6 @@
 import User from "src/users/schemas/user.schema"
 import { Task } from "../schemas/tasks.schema"
-import { IsEnum, IsNotEmpty, IsOptional, IsString} from "class-validator"
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator"
 import { TaskStatus } from "../entities/task.entity"
 
 export class TaskDto {
@@ -11,6 +11,10 @@ export class TaskDto {
     @IsOptional()
     @IsEnum(TaskStatus)
     readonly status: TaskStatus
+
+    @IsString()
+    @IsOptional()
+    readonly category: string
 }
 
 

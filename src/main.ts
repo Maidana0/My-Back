@@ -9,7 +9,7 @@ import * as MongoDBStore from 'connect-mongodb-session'
 async function bootstrap() {
   const MongoDbStore = MongoDBStore(session)
   const store = new MongoDbStore({
-    uri: process.env.DB_uri,
+    uri: process.env.DB_URI,
     collection: 'sessions'
   })
 
@@ -24,7 +24,7 @@ async function bootstrap() {
       saveUninitialized: false,
       cookie: {
         maxAge: +process.env.SESSION_MAX_AGE,
-        //  secure: true PARA QUE SOLO ADMITA HTTPS
+        secure: process.env.MODE === "prod" // true only if you're using https
       },
       store
     })
@@ -33,6 +33,6 @@ async function bootstrap() {
   app.use(passport.session())
 
   app.useGlobalPipes(new ValidationPipe())
-  await app.listen(4000);
+  await app.listen(process.env.PORT);
 }
 bootstrap();
